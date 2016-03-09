@@ -3,6 +3,25 @@
 var fs = require('fs'),
     vm = require('vm');
 
+
+function cloneInterface(anInterface) {
+  var clone = {};
+  for (var key in anInterface) {
+    clone[key] = anInterface[key];
+  }
+  return clone;
+}
+
+function wrapFunction(fnName, fn) {
+  return function wrapper() {
+    var args = [];
+    Array.prototype.push.apply(args, arguments);
+    console.log('Call: ' + fnName);
+    console.dir(args);
+    fn.apply(undefined, args);
+  }
+}
+
 // Create a hash for application sandbox
 var context = {
   module: {},

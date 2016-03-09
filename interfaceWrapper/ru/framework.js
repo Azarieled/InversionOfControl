@@ -3,6 +3,39 @@
 var fs = require('fs'),
     vm = require('vm');
 
+function cloneInterface(anInterface) {
+  var clone = {};
+  for (var key in anInterface) {
+    clone[key] = anInterface[key];
+  }
+  return clone;
+}
+
+function wrapFunction(fnName, fn) {
+  return function wrapper() {
+    var args = [];
+    Array.prototype.push.apply(args, arguments);
+    console.log('Call: ' + fnName);
+    console.dir(args);
+    var callback = args.pop();
+    if (typeof callback === 'function') {
+      args.push(function() {
+        console.log('Call: ' + fnName);
+        console.dir(args);
+        callback();
+      });
+    }
+    fn.apply(undefined, args);
+  }
+}
+
+var wrappedFs = cloneInterface(fs);
+for (var key in wrappedFs) {
+  wrappedFs[key] = function() {
+    wrapFunction();
+  };
+}
+
 // Объявляем хеш из которого сделаем контекст-песочницу
 var context = {
   module: {},
